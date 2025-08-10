@@ -30,6 +30,7 @@ const effectList: { id: EffectId; name: string; desc: string }[] = [
   { id: "tremolo", name: "Tremolo", desc: "AM wobble" },
   { id: "flanger", name: "Flanger", desc: "whoosh mod" },
   { id: "chorus", name: "Chorus", desc: "wide swirl" },
+  { id: "eight_d", name: "8D Audio", desc: "auto pan orbit" },
   { id: "stereo_widen", name: "Stereo Widen", desc: "pan widen" },
 ];
 

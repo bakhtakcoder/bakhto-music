@@ -21,7 +21,8 @@ export type EffectId =
   | "tremolo"
   | "flanger"
   | "chorus"
-  | "stereo_widen";
+  | "stereo_widen"
+  | "eight_d";
 
 export type EffectParams = {
   intensity: number; // 0..1
@@ -309,6 +310,19 @@ export function useAudioEngine() {
           node.connect(p); node = p;
           break;
         }
+        case "eight_d": {
+          const p = context.createStereoPanner();
+          const lfo = context.createOscillator();
+          const g = context.createGain();
+          const amp = 0.2 + params.intensity * 0.8; // pan amount
+          lfo.type = "sine"; lfo.frequency.value = 0.1 + params.speed * 1.4; // 0.1..1.5 Hz
+          g.gain.value = amp;
+          lfo.connect(g); g.connect(p.pan);
+          lfo.start();
+          tremoloOscRef.current = lfo; lfoGainRef.current = g;
+          node.connect(p); node = p;
+          break;
+        }
       }
 
       node.connect(analyser);
@@ -356,8 +370,15 @@ export function useAudioEngine() {
   }, []);
 
   const updateParams = useCallback((p: Partial<EffectParams>) => {
-    setParams(prev => ({ ...prev, ...p }));
-  }, []);
+    setParams(prev => {
+      const next = { ...prev, ...p };
+      if (isPlaying && ctx && buffer) {
+        const src = setupGraph(ctx, buffer);
+        try { src.start(); setPlaying(true); } catch {}
+      }
+      return next;
+    });
+  }, [isPlaying, ctx, buffer, setupGraph]);
 
   const analyser = useMemo(() => analyserRef.current || null, [analyserRef.current]);
 
@@ -445,6 +466,17 @@ export function useAudioEngine() {
       }
       case "stereo_widen": {
         const p = offline.createStereoPanner(); p.pan.value = 0.4 + params.intensity * 0.4; node.connect(p); node = p; break;
+      }
+      case "eight_d": {
+        const p = offline.createStereoPanner();
+        const lfo = offline.createOscillator();
+        const g = offline.createGain();
+        const amp = 0.2 + params.intensity * 0.8;
+        lfo.type = "sine"; lfo.frequency.value = 0.1 + params.speed * 1.4;
+        g.gain.value = amp;
+        lfo.connect(g); (g as any).connect((p as any).pan);
+        lfo.start();
+        node.connect(p); node = p; break;
       }
     }
 
