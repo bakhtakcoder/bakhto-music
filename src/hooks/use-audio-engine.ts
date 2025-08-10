@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import lamejs from "lamejs";
+
+declare global { interface Window { lamejs?: any } }
 
 export type EffectId =
   | "clean"
@@ -456,7 +457,12 @@ export function useAudioEngine() {
     const left = rendered.getChannelData(0);
     const right = channels > 1 ? rendered.getChannelData(1) : rendered.getChannelData(0);
 
-    const mp3encoder = new lamejs.Mp3Encoder(2, sampleRate, 192);
+    const Mp3 = (window as any).lamejs?.Mp3Encoder;
+    if (!Mp3) {
+      console.error("lamejs Mp3Encoder not available yet");
+      return null;
+    }
+    const mp3encoder = new Mp3(2, sampleRate, 192);
     const blockSize = 1152;
     let mp3Data: Uint8Array[] = [];
 

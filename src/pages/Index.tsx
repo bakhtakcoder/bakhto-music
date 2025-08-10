@@ -59,7 +59,7 @@ const Index = () => {
     toast({ title: "Processing…", description: "Rendering your MP3, please wait." });
     const res = await engine.exportMp3();
     if (!res) {
-      toast({ title: "No track", description: "Load an audio file first.", variant: "destructive" as any });
+      toast({ title: "Unable to export MP3", description: engine.name ? "Encoder not ready. Please try again." : "Load an audio file first.", variant: "destructive" as any });
       return;
     }
     const { blob, url } = res;
