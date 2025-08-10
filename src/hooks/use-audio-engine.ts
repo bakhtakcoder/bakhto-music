@@ -111,7 +111,19 @@ export function useAudioEngine() {
   });
 
   useEffect(() => {
-    localStorage.setItem("bakhtak-history", JSON.stringify(history.slice(0, 8)));
+    try {
+      // Persist only lightweight metadata to avoid quota issues
+      const compact = history.slice(0, 8).map(({ mp3, ...rest }) => rest);
+      localStorage.setItem("bakhtak-history", JSON.stringify(compact));
+    } catch (e) {
+      // Retry with a smaller set, then clear if still failing
+      try {
+        const compactSmall = history.slice(0, 3).map(({ mp3, ...rest }) => rest);
+        localStorage.setItem("bakhtak-history", JSON.stringify(compactSmall));
+      } catch {
+        try { localStorage.removeItem("bakhtak-history"); } catch {}
+      }
+    }
   }, [history]);
 
   const ensureCtx = useCallback(() => {
