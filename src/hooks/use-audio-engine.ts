@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-declare global { interface Window { lamejs?: any } }
+declare global { interface Window { lamejs?: any; Lame?: any } }
 
 export type EffectId =
   | "clean"

@@ -14,6 +14,9 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),
+  optimizeDeps: {
+    exclude: ['lamejs'],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
